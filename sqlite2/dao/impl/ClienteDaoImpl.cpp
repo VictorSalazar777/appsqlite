@@ -17,8 +17,8 @@ ClienteDaoImpl::ClienteDaoImpl() {
 }
 
 int ClienteDaoImpl::qry(list<unique_ptr<ClienteEntry>> &clientes) {
-    const string sql = "SELECT * FROM cliente";
     int res = -1;
+    const string sql = "SELECT * FROM cliente";
     
     DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db, sql);
     
@@ -27,6 +27,7 @@ int ClienteDaoImpl::qry(list<unique_ptr<ClienteEntry>> &clientes) {
     while(1) {
         int rc = sqlite3_step(stmt.get());
         if (rc == SQLITE_DONE) {
+            res = 0;
             break;
         }
         if (rc != SQLITE_ROW) {
@@ -43,12 +44,42 @@ int ClienteDaoImpl::qry(list<unique_ptr<ClienteEntry>> &clientes) {
     return res;
 }
 
-int ClienteDaoImpl::ins(ClienteEntry &cliente) {
+int ClienteDaoImpl::ins(unique_ptr<ClienteEntry> &cliente) {
     int rc;
     return rc;
 }
 
-int ClienteDaoImpl::get(long long id, ClienteEntry &cliente) {
-    int rc;
-    return rc;
+int ClienteDaoImpl::get(long long id, unique_ptr<ClienteEntry> &cliente) {
+    int res = -1;
+    const string sql = "SELECT * FROM `cliente` WHERE `id`=?";
+    
+    DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db, sql);
+    
+    if (int rc = sqlite3_bind_int64(stmt.get(), 1, id) != SQLITE_OK) {
+        cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+        DatabaseUtils::printDbMsgError(db, "bind error");
+        return res;
+    }
+    
+    cout << "dao: "<< sqlite3_sql(stmt.get()) << endl;
+    
+    while(1) {
+        int rc = sqlite3_step(stmt.get());
+        if (rc == SQLITE_DONE) {
+            res = 0;
+            break;
+        }
+        if (rc != SQLITE_ROW) {
+            DatabaseUtils::printDbMsgError(db, "step error");
+            break;
+        }
+        
+        cliente->id = sqlite3_column_int64(stmt.get(), 0);
+        cliente->nombres = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 1)));
+        cliente->apellidos = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 2)));
+        cliente->dni = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 3)));
+    
+    }
+    
+    return res;
 }

@@ -27,5 +27,8 @@ int main(int argc, const char * argv[]) {
     for (auto it = clientes.begin(); it != clientes.end(); ++it) {
         (*it)->print();
     }
+    unique_ptr<ClienteEntry> cliente = make_unique<ClienteEntry>();
+    dao->get(2LL, cliente);
+    cliente->print();
     cout << "Closing..." << endl;
 }

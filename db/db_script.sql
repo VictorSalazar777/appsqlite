@@ -20,7 +20,7 @@ insert into `cliente`(`nombres`, `apellidos`, `dni`)
 values("felipe", "salazar", "77777777");
 select * from `datos`;
 delete from `datos` where `id` = 14;
-
+select * from `cliente` where `id` = 2;
 create table `cliente` (
 `id` integer primary key autoincrement,
 `nombres` text not null,

@@ -20,8 +20,8 @@ public:
     //virtual ~ClienteDaoImpl();
     ClienteDaoImpl();
     virtual int qry(list<unique_ptr<ClienteEntry>> &clientes) override;
-    virtual int ins(ClienteEntry &cliente) override;
-    virtual int get(long long id, ClienteEntry &cliente) override;
+    virtual int ins(unique_ptr<ClienteEntry> &cliente) override;
+    virtual int get(long long id, unique_ptr<ClienteEntry> &cliente) override;
 };
 
 #endif /* ClienteDaoImpl_hpp */

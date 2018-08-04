@@ -18,8 +18,8 @@ class ClienteDao {
 public:
     virtual ~ClienteDao(){};
     virtual int qry(list<unique_ptr<ClienteEntry>> &clientes) = 0;
-    virtual int ins(ClienteEntry &cliente) = 0;
-    virtual int get(long long id, ClienteEntry &cliente) = 0;
+    virtual int ins(unique_ptr<ClienteEntry> &cliente) = 0;
+    virtual int get(long long id, unique_ptr<ClienteEntry> &cliente) = 0;
 };
 
 #endif /* ClienteDao_hpp */
