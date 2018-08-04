@@ -8,7 +8,6 @@
 
 #include "ClienteDaoImpl.hpp"
 #include "dto/ClienteEntry.hpp"
-#include "db_connection/SqliteConnection.hpp"
 #include "utils/DatabaseUtils.hpp"
 #include <sqlite3.h>
 #include <iostream>
@@ -16,7 +15,7 @@
 using namespace std;
 
 ClienteDaoImpl::ClienteDaoImpl() {
-    db = DatabaseUtils::getDb((SqliteConnection::getInstance())->getSqliteConnection());
+    db = DatabaseUtils::getDb();
 }
 
 int ClienteDaoImpl::qry(const list<ClienteEntry> &clientes) {

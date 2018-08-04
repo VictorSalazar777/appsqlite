@@ -7,6 +7,7 @@
 //
 
 #include "DatabaseUtils.hpp"
+#include "db_connection/SqliteConnection.hpp"
 #include <iostream>
 
 using namespace std;
@@ -55,7 +56,8 @@ namespace DatabaseUtils {
         return columnNames;
     }
 
-    uniqueDbPtr getDb(sqlite3* db) {
+    uniqueDbPtr getDb() {
+        sqlite3 *db = (SqliteConnection::getInstance())->getSqliteConnection();
         return uniqueDbPtr(db);
     }
     

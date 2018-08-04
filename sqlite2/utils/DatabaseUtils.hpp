@@ -30,7 +30,7 @@ namespace DatabaseUtils {
         }
     };
     using uniqueDbPtr = unique_ptr<sqlite3, DbDeleter>;
-    uniqueDbPtr getDb(sqlite3* db);
+    uniqueDbPtr getDb();
     
     struct StmtDeleter {
         void operator()(sqlite3_stmt* stmt) {
