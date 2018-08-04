@@ -11,6 +11,7 @@
 
 #include "dao/ClienteDao.hpp"
 #include "utils/DatabaseUtils.hpp"
+#include "db_connection/SqliteConnection2.hpp"
 #include <sqlite3.h>
 
 class ClienteDaoImpl : public ClienteDao {
@@ -18,9 +19,9 @@ class ClienteDaoImpl : public ClienteDao {
 public:
     //virtual ~ClienteDaoImpl();
     ClienteDaoImpl();
-    virtual int qry(const list<ClienteEntry> &clientes) override;
-    virtual int ins(const ClienteEntry &cliente) override;
-    virtual int get(long id, const ClienteEntry &cliente) override;
+    virtual int qry(list<unique_ptr<ClienteEntry>> &clientes) override;
+    virtual int ins(ClienteEntry &cliente) override;
+    virtual int get(long long id, ClienteEntry &cliente) override;
 };
 
 #endif /* ClienteDaoImpl_hpp */

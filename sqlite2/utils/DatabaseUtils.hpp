@@ -18,8 +18,6 @@ using namespace std;
 namespace DatabaseUtils {
     string getDatabasePath();
     
-    void printDbMsgError(sqlite3* db, string tag);
-    
     string insertSqlGenerator(string tableName, list<string> columnNames);
     
     list<string> getColumnNamesFromDb(sqlite3 *db, const string tableName);
@@ -38,7 +36,9 @@ namespace DatabaseUtils {
         }
     };
     using uniqueStmtPtr = unique_ptr<sqlite3_stmt, StmtDeleter>;
-    uniqueStmtPtr getStmt(sqlite3* db, string sql);
+    uniqueStmtPtr getStmt(const uniqueDbPtr& db, string sql);
+    
+    void printDbMsgError(const uniqueDbPtr& db, string tag);
 };
 
 #endif /* DatabaseUtils_hpp */

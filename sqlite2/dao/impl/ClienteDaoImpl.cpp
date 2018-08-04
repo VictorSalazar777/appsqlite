@@ -8,8 +8,6 @@
 
 #include "ClienteDaoImpl.hpp"
 #include "dto/ClienteEntry.hpp"
-#include "utils/DatabaseUtils.hpp"
-#include <sqlite3.h>
 #include <iostream>
 
 using namespace std;
@@ -18,29 +16,39 @@ ClienteDaoImpl::ClienteDaoImpl() {
     db = DatabaseUtils::getDb();
 }
 
-int ClienteDaoImpl::qry(const list<ClienteEntry> &clientes) {
+int ClienteDaoImpl::qry(list<unique_ptr<ClienteEntry>> &clientes) {
     const string sql = "SELECT * FROM cliente";
-    int rc = -1;
+    int res = -1;
     
-    DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db.get(), sql);
+    DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db, sql);
     
     cout << "dao: "<< sqlite3_sql(stmt.get()) << endl;
     
-    if (int err = sqlite3_step(stmt.get()) != SQLITE_DONE) {
-        cerr << "step error code: " << sqlite3_errstr(err) << endl;
-        DatabaseUtils::printDbMsgError(db.get(), "step error");
-        return rc;
+    while(1) {
+        int rc = sqlite3_step(stmt.get());
+        if (rc == SQLITE_DONE) {
+            break;
+        }
+        if (rc != SQLITE_ROW) {
+            DatabaseUtils::printDbMsgError(db, "step error");
+            break;
+        }
+        unique_ptr<ClienteEntry> clientePtr = make_unique<ClienteEntry>();
+        clientePtr->id = sqlite3_column_int64(stmt.get(), 0);
+        clientePtr->nombres = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 1)));
+        clientePtr->apellidos = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 2)));
+        clientePtr->dni = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 3)));
+        clientes.push_back(std::move(clientePtr));
     }
-    
-    return rc;
+    return res;
 }
 
-int ClienteDaoImpl::ins(const ClienteEntry &cliente) {
+int ClienteDaoImpl::ins(ClienteEntry &cliente) {
     int rc;
     return rc;
 }
 
-int ClienteDaoImpl::get(long id, const ClienteEntry &cliente) {
+int ClienteDaoImpl::get(long long id, ClienteEntry &cliente) {
     int rc;
     return rc;
 }

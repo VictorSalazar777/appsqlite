@@ -21,9 +21,11 @@ int main(int argc, const char * argv[]) {
     cout << "Starting app..." << " cpp version: "<< __cplusplus << endl;
     cout << "Working dir: " << FileSystemUtils::getCurrentDirectory() << endl;
 
-    list<ClienteEntry> clientes;
+    list<unique_ptr<ClienteEntry>> clientes;
     unique_ptr<ClienteDao> dao = make_unique<ClienteDaoImpl>();
     dao->qry(clientes);
-    
+    for (auto it = clientes.begin(); it != clientes.end(); ++it) {
+        (*it)->print();
+    }
     cout << "Closing..." << endl;
 }

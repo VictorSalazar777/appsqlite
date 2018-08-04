@@ -17,10 +17,6 @@ namespace DatabaseUtils {
         return "db/cliente.db";
     }
     
-    void printDbMsgError(sqlite3* db, string tag) {
-        cerr << tag << ", db error msg: " << sqlite3_errmsg(db) << endl;
-    }
-    
     string insertSqlGenerator(string tableName, list<string> columnNames) {
         string sql = "INSERT INTO " + tableName + "(";
         string sqlValues = " VALUES(";
@@ -61,14 +57,18 @@ namespace DatabaseUtils {
         return uniqueDbPtr(db);
     }
     
-    uniqueStmtPtr getStmt(sqlite3* db, string sql) {
+    uniqueStmtPtr getStmt(const uniqueDbPtr& db, string sql) {
         sqlite3_stmt *stmt = nullptr;
         uniqueStmtPtr stmtPtr = nullptr;
-        if (int err = sqlite3_prepare_v2(db, sql.c_str(), static_cast<int>(sql.size()), &stmt, nullptr) != SQLITE_OK) {
+        if (int err = sqlite3_prepare_v2(db.get(), sql.c_str(), static_cast<int>(sql.size()), &stmt, nullptr) != SQLITE_OK) {
             cerr << "prepare stmt error code: " << sqlite3_errstr(err) << endl;
             return stmtPtr;
         }
         stmtPtr = uniqueStmtPtr(stmt);
         return stmtPtr;
+    }
+    
+    void printDbMsgError(const uniqueDbPtr& db, string tag) {
+        cerr << tag << ", db error msg: " << sqlite3_errmsg(db.get()) << endl;
     }
 };

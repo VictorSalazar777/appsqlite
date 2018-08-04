@@ -14,9 +14,9 @@ create table `datos` (
 `dni` text unique not null
 );
 
-insert into `datos`(`nombres`, `apellidos`, `dni`) 
+insert into `cliente`(`nombres`, `apellidos`, `dni`) 
 values("manuel", "salazar", "40562639");
-insert into `datos`(`nombres`, `apellidos`, `dni`) 
+insert into `cliente`(`nombres`, `apellidos`, `dni`) 
 values("felipe", "salazar", "77777777");
 select * from `datos`;
 delete from `datos` where `id` = 14;
@@ -30,3 +30,4 @@ create table `cliente` (
 
 insert into `cliente`(`nombres`, `apellidos`, `dni`) 
 values("manuel", "salazar", "40562639");
+SELECT * FROM cliente;

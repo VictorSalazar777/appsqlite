@@ -1,25 +1,26 @@
 //
-//  ClienteEntry.hpp
-//  sqlite1
+//  ClienteEntry.h
+//  sqlite2
 //
-//  Created by manuel on 7/27/18.
+//  Created by manuel on 8/4/18.
 //  Copyright © 2018 manuel. All rights reserved.
 //
 
-#ifndef ClienteEntry_hpp
-#define ClienteEntry_hpp
+#ifndef ClienteEntry_h
+#define ClienteEntry_h
 
-#include <string>
+#include <iostream>
 
 using namespace std;
 
 struct ClienteEntry {
-    long id;
+    long long id;
     string nombres;
     string apellidos;
     string dni;
-    double fecha_de_inscripcion;
-    string fecha_de_inscripcion_iso8601_string;
+    void print(){
+        cout << "id: " << id << ", nombres: " << nombres << ", apellidos: " << apellidos << ", dni: " << dni << endl;
+    };
 };
 
-#endif /* ClienteEntry_hpp */
+#endif /* ClienteEntry_h */
