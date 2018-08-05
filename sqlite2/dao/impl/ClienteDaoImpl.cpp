@@ -45,8 +45,42 @@ int ClienteDaoImpl::qry(list<unique_ptr<ClienteEntry>> &clientes) {
 }
 
 int ClienteDaoImpl::ins(unique_ptr<ClienteEntry> &cliente) {
-    int rc;
-    return rc;
+    int res = -1;
+    const string sql = "INSERT INTO cliente(nombres, apellidos, dni) VALUES(?, ?, ?)";
+    DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db, sql);
+    
+    if (int rc = sqlite3_bind_text(stmt.get(), 1, cliente->nombres.c_str(),
+                                   static_cast<int>(cliente->nombres.size()),
+                                   SQLITE_STATIC) != SQLITE_OK) {
+        cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+        DatabaseUtils::printDbMsgError(db, "bind error");
+        return res;
+    }
+    
+    if (int rc = sqlite3_bind_text(stmt.get(), 2, cliente->apellidos.c_str(),
+                                   static_cast<int>(cliente->apellidos.size()),
+                                   SQLITE_STATIC) != SQLITE_OK) {
+        cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+        DatabaseUtils::printDbMsgError(db, "bind error");
+        return res;
+    }
+    
+    if (int rc = sqlite3_bind_text(stmt.get(), 3, cliente->dni.c_str(),
+                                   static_cast<int>(cliente->dni.size()),
+                                   SQLITE_STATIC) != SQLITE_OK) {
+        cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+        DatabaseUtils::printDbMsgError(db, "bind error");
+        return res;
+    }
+    
+    cout << "dao: "<< sqlite3_expanded_sql(stmt.get()) << endl;
+
+    if (int rc = sqlite3_step(stmt.get()) != SQLITE_DONE) {
+        cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+        DatabaseUtils::printDbMsgError(db, "step error");
+    }
+    
+    return res;
 }
 
 int ClienteDaoImpl::get(long long id, unique_ptr<ClienteEntry> &cliente) {
@@ -61,7 +95,7 @@ int ClienteDaoImpl::get(long long id, unique_ptr<ClienteEntry> &cliente) {
         return res;
     }
     
-    cout << "dao: "<< sqlite3_sql(stmt.get()) << endl;
+    cout << "dao: "<< sqlite3_expanded_sql(stmt.get()) << endl;
     
     while(1) {
         int rc = sqlite3_step(stmt.get());

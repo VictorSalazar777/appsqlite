@@ -18,7 +18,7 @@ insert into `cliente`(`nombres`, `apellidos`, `dni`)
 values("manuel", "salazar", "40562639");
 insert into `cliente`(`nombres`, `apellidos`, `dni`) 
 values("felipe", "salazar", "77777777");
-select * from `datos`;
+select * from `cliente`;
 delete from `datos` where `id` = 14;
 select * from `cliente` where `id` = 2;
 create table `cliente` (

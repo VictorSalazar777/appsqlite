@@ -30,5 +30,10 @@ int main(int argc, const char * argv[]) {
     unique_ptr<ClienteEntry> cliente = make_unique<ClienteEntry>();
     dao->get(2LL, cliente);
     cliente->print();
+    
+    cliente->nombres = "Marco Aurelio";
+    cliente->apellidos = "Denegri";
+    cliente->dni = "123134213";
+    dao->ins(cliente);
     cout << "Closing..." << endl;
 }
