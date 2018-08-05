@@ -20,6 +20,8 @@ public:
     virtual int qry(list<unique_ptr<ClienteEntry>> &clientes) = 0;
     virtual int ins(unique_ptr<ClienteEntry> &cliente) = 0;
     virtual int get(long long id, unique_ptr<ClienteEntry> &cliente) = 0;
+    virtual int upd(unique_ptr<ClienteEntry> &cliente) = 0;
+    virtual int del(list<long long> &ids) = 0;
 };
 
 #endif /* ClienteDao_hpp */

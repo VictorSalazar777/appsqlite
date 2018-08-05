@@ -35,5 +35,17 @@ int main(int argc, const char * argv[]) {
     cliente->apellidos = "Denegri";
     cliente->dni = "123134213";
     dao->ins(cliente);
+    
+    cliente->id = 3LL;
+    cliente->nombres = "Felipe";
+    cliente->apellidos = "Salazar";
+    cliente->dni = "412343145";
+    dao->upd(cliente);
+    
+    list<long long> ids;
+    ids.push_back(4LL);
+    ids.push_back(5LL);
+    dao->del(ids);
+    
     cout << "Closing..." << endl;
 }

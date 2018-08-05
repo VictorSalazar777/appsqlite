@@ -19,7 +19,6 @@ ClienteDaoImpl::ClienteDaoImpl() {
 int ClienteDaoImpl::qry(list<unique_ptr<ClienteEntry>> &clientes) {
     int res = -1;
     const string sql = "SELECT * FROM cliente";
-    
     DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db, sql);
     
     cout << "dao: "<< sqlite3_sql(stmt.get()) << endl;
@@ -52,7 +51,7 @@ int ClienteDaoImpl::ins(unique_ptr<ClienteEntry> &cliente) {
     if (int rc = sqlite3_bind_text(stmt.get(), 1, cliente->nombres.c_str(),
                                    static_cast<int>(cliente->nombres.size()),
                                    SQLITE_STATIC) != SQLITE_OK) {
-        cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+        cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
         return res;
     }
@@ -60,7 +59,7 @@ int ClienteDaoImpl::ins(unique_ptr<ClienteEntry> &cliente) {
     if (int rc = sqlite3_bind_text(stmt.get(), 2, cliente->apellidos.c_str(),
                                    static_cast<int>(cliente->apellidos.size()),
                                    SQLITE_STATIC) != SQLITE_OK) {
-        cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+        cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
         return res;
     }
@@ -68,7 +67,7 @@ int ClienteDaoImpl::ins(unique_ptr<ClienteEntry> &cliente) {
     if (int rc = sqlite3_bind_text(stmt.get(), 3, cliente->dni.c_str(),
                                    static_cast<int>(cliente->dni.size()),
                                    SQLITE_STATIC) != SQLITE_OK) {
-        cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+        cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
         return res;
     }
@@ -86,11 +85,10 @@ int ClienteDaoImpl::ins(unique_ptr<ClienteEntry> &cliente) {
 int ClienteDaoImpl::get(long long id, unique_ptr<ClienteEntry> &cliente) {
     int res = -1;
     const string sql = "SELECT * FROM `cliente` WHERE `id`=?";
-    
     DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db, sql);
     
     if (int rc = sqlite3_bind_int64(stmt.get(), 1, id) != SQLITE_OK) {
-        cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+        cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
         return res;
     }
@@ -112,8 +110,90 @@ int ClienteDaoImpl::get(long long id, unique_ptr<ClienteEntry> &cliente) {
         cliente->nombres = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 1)));
         cliente->apellidos = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 2)));
         cliente->dni = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt.get(), 3)));
-    
     }
+    
+    return res;
+}
+
+int ClienteDaoImpl::upd(unique_ptr<ClienteEntry> &cliente) {
+    int res = -1;
+    const string sql = "UPDATE cliente SET nombres=?, apellidos=?, dni=? WHERE id=?";
+    DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db, sql);
+    
+    if (int rc = sqlite3_bind_text(stmt.get(), 1, cliente->nombres.c_str(),
+                                   static_cast<int>(cliente->nombres.size()),
+                                   SQLITE_STATIC) != SQLITE_OK) {
+        cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
+        DatabaseUtils::printDbMsgError(db, "bind error");
+        return res;
+    }
+    
+    if (int rc = sqlite3_bind_text(stmt.get(), 2, cliente->apellidos.c_str(),
+                                   static_cast<int>(cliente->apellidos.size()),
+                                   SQLITE_STATIC) != SQLITE_OK) {
+        cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
+        DatabaseUtils::printDbMsgError(db, "bind error");
+        return res;
+    }
+    
+    if (int rc = sqlite3_bind_text(stmt.get(), 3, cliente->dni.c_str(),
+                                   static_cast<int>(cliente->dni.size()),
+                                   SQLITE_STATIC) != SQLITE_OK) {
+        cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
+        DatabaseUtils::printDbMsgError(db, "bind error");
+        return res;
+    }
+    
+    if (int rc = sqlite3_bind_int64(stmt.get(), 4, cliente->id) != SQLITE_OK) {
+        cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
+        DatabaseUtils::printDbMsgError(db, "bind error");
+        return res;
+    }
+    
+    cout << "dao: "<< sqlite3_expanded_sql(stmt.get()) << endl;
+    
+    if (int rc = sqlite3_step(stmt.get()) != SQLITE_DONE) {
+        cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+        DatabaseUtils::printDbMsgError(db, "step error");
+    }
+    
+    return res;
+}
+
+int ClienteDaoImpl::del(list<long long> &ids) {
+    int res = -1;
+    const string sql = "DELETE FROM cliente WHERE id=?";
+    DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db, sql);
+    
+    for (long long id : ids) {
+        if (int rc = sqlite3_bind_int64(stmt.get(), 1, id) != SQLITE_OK) {
+            cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
+            DatabaseUtils::printDbMsgError(db, "bind error");
+            return res;
+        }
+        
+        cout << "dao: "<< sqlite3_expanded_sql(stmt.get()) << endl;
+        
+        if (int rc = sqlite3_step(stmt.get()) != SQLITE_DONE) {
+            cerr << "step error code: " << sqlite3_errstr(rc) << endl;
+            DatabaseUtils::printDbMsgError(db, "step error");
+            return rc;
+        }
+        
+        if (int rc = sqlite3_reset(stmt.get()) != SQLITE_OK) {
+            cerr << "reset error code: " << sqlite3_errstr(rc) << endl;
+            DatabaseUtils::printDbMsgError(db, "reset error");
+            return rc;
+        }
+        
+        if (int rc = sqlite3_clear_bindings(stmt.get()) != SQLITE_OK) {
+            cerr << "clear binding error code: " << sqlite3_errstr(rc) << endl;
+            DatabaseUtils::printDbMsgError(db, "clear binding error");
+            return rc;
+        }
+    }
+    
+    res = 0;
     
     return res;
 }

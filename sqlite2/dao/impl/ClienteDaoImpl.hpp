@@ -22,6 +22,8 @@ public:
     virtual int qry(list<unique_ptr<ClienteEntry>> &clientes) override;
     virtual int ins(unique_ptr<ClienteEntry> &cliente) override;
     virtual int get(long long id, unique_ptr<ClienteEntry> &cliente) override;
+    virtual int upd(unique_ptr<ClienteEntry> &cliente) override;
+    virtual int del(list<long long> &ids) override;
 };
 
 #endif /* ClienteDaoImpl_hpp */
