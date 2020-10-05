@@ -7,7 +7,6 @@
 //
 
 #include "DatabaseUtils.hpp"
-#include "db_connection/SqliteConnection.hpp"
 #include <iostream>
 
 using namespace std;
@@ -53,11 +52,13 @@ namespace DatabaseUtils {
     }
 
     uniqueDbPtr getDb() {
-        sqlite3 *db = (SqliteConnection::getInstance())->getSqliteConnection();
-        return uniqueDbPtr(db);
+        //sqlite3 *db = (SqliteConnection::getInstance())->getSqliteConnection();
+        //sqlite3 *db = SqliteConnection2::getDb();
+        //return uniqueDbPtr(db);
+        return SqliteConnection2::getDb();
     }
     
-    uniqueStmtPtr getStmt(const uniqueDbPtr& db, string sql) {
+    uniqueStmtPtr getStmt(const SqliteConnection2::uniqueDbPtr& db, string sql) {
         sqlite3_stmt *stmt = nullptr;
         uniqueStmtPtr stmtPtr = nullptr;
         if (int err = sqlite3_prepare_v2(db.get(), sql.c_str(), static_cast<int>(sql.size()), &stmt, nullptr) != SQLITE_OK) {
@@ -68,7 +69,7 @@ namespace DatabaseUtils {
         return stmtPtr;
     }
     
-    void printDbMsgError(const uniqueDbPtr& db, string tag) {
+    void printDbMsgError(const SqliteConnection2::uniqueDbPtr& db, string tag) {
         cerr << tag << ", db error msg: " << sqlite3_errmsg(db.get()) << endl;
     }
 };

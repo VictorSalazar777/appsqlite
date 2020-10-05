@@ -16,12 +16,29 @@ ClienteDaoImpl::ClienteDaoImpl() {
     db = DatabaseUtils::getDb();
 }
 
+int ClienteDaoImpl::beginTransaction() {
+    return sqlite3_exec(db.get(), "BEGIN TRANSACTION;", NULL, NULL, NULL);
+}
+int ClienteDaoImpl::endTransaction() {
+    return sqlite3_exec(db.get(), "END TRANSACTION;", NULL, NULL, NULL);
+}
+
+void *ClienteDaoImpl::execUpdateHook(
+                                     void(*callback)(void *arg, int opType, const char* dbName,
+                                                     const char* tableName, long long rowid), void *arg) {
+    return sqlite3_update_hook(
+                               db.get(),
+                               callback,
+                               arg
+                               );
+}
+
 int ClienteDaoImpl::qry(list<unique_ptr<ClienteEntry>> &clientes) {
     int res = -1;
     const string sql = "SELECT * FROM cliente";
     DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db, sql);
     
-    cout << "dao: "<< sqlite3_sql(stmt.get()) << endl;
+    cout << "dao qry: "<< sqlite3_sql(stmt.get()) << endl;
     
     while(1) {
         int rc = sqlite3_step(stmt.get());
@@ -45,14 +62,16 @@ int ClienteDaoImpl::qry(list<unique_ptr<ClienteEntry>> &clientes) {
 
 int ClienteDaoImpl::ins(unique_ptr<ClienteEntry> &cliente) {
     int res = -1;
-    const string sql = "INSERT INTO cliente(nombres, apellidos, dni) VALUES(?, ?, ?)";
+    const string sql = "INSERT INTO cliente2(nombres, apellidos, dni) VALUES(?, ?, ?)";
     DatabaseUtils::uniqueStmtPtr stmt = DatabaseUtils::getStmt(db, sql);
     
     if (int rc = sqlite3_bind_text(stmt.get(), 1, cliente->nombres.c_str(),
                                    static_cast<int>(cliente->nombres.size()),
                                    SQLITE_STATIC) != SQLITE_OK) {
         cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
+        cerr <<"file: " << __FILE__ << ", line: " << __LINE__ << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
+        
         return res;
     }
     
@@ -61,6 +80,7 @@ int ClienteDaoImpl::ins(unique_ptr<ClienteEntry> &cliente) {
                                    SQLITE_STATIC) != SQLITE_OK) {
         cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
+        cerr <<"file: " << __FILE__ << ", line: " << __LINE__ << endl;
         return res;
     }
     
@@ -69,15 +89,20 @@ int ClienteDaoImpl::ins(unique_ptr<ClienteEntry> &cliente) {
                                    SQLITE_STATIC) != SQLITE_OK) {
         cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
+        cerr <<"file: " << __FILE__ << ", line: " << __LINE__ << endl;
         return res;
     }
     
-    cout << "dao: "<< sqlite3_expanded_sql(stmt.get()) << endl;
+    //cout << "dao ins: "<< sqlite3_expanded_sql(stmt.get()) << endl;
 
     if (int rc = sqlite3_step(stmt.get()) != SQLITE_DONE) {
         cerr << "step error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "step error");
+        cerr <<"file: " << __FILE__ << ", line: " << __LINE__ << endl;
+        return res;
     }
+    
+    res = 0;
     
     return res;
 }
@@ -93,7 +118,7 @@ int ClienteDaoImpl::get(long long id, unique_ptr<ClienteEntry> &cliente) {
         return res;
     }
     
-    cout << "dao: "<< sqlite3_expanded_sql(stmt.get()) << endl;
+    cout << "dao get: "<< sqlite3_expanded_sql(stmt.get()) << endl;
     
     while(1) {
         int rc = sqlite3_step(stmt.get());
@@ -124,7 +149,9 @@ int ClienteDaoImpl::upd(unique_ptr<ClienteEntry> &cliente) {
                                    static_cast<int>(cliente->nombres.size()),
                                    SQLITE_STATIC) != SQLITE_OK) {
         cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
+        cerr <<"file: " << __FILE__ << ", line: " << __LINE__ << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
+        
         return res;
     }
     
@@ -133,6 +160,7 @@ int ClienteDaoImpl::upd(unique_ptr<ClienteEntry> &cliente) {
                                    SQLITE_STATIC) != SQLITE_OK) {
         cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
+        cerr <<"file: " << __FILE__ << ", line: " << __LINE__ << endl;
         return res;
     }
     
@@ -141,22 +169,27 @@ int ClienteDaoImpl::upd(unique_ptr<ClienteEntry> &cliente) {
                                    SQLITE_STATIC) != SQLITE_OK) {
         cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
+        cerr <<"file: " << __FILE__ << ", line: " << __LINE__ << endl;
         return res;
     }
     
     if (int rc = sqlite3_bind_int64(stmt.get(), 4, cliente->id) != SQLITE_OK) {
         cerr << "bind error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "bind error");
+        cerr <<"file: " << __FILE__ << ", line: " << __LINE__ << endl;
         return res;
     }
     
-    cout << "dao: "<< sqlite3_expanded_sql(stmt.get()) << endl;
+    cout << "dao upd: "<< sqlite3_expanded_sql(stmt.get()) << endl;
     
     if (int rc = sqlite3_step(stmt.get()) != SQLITE_DONE) {
         cerr << "step error code: " << sqlite3_errstr(rc) << endl;
         DatabaseUtils::printDbMsgError(db, "step error");
+        cerr <<"file: " << __FILE__ << ", line: " << __LINE__ << endl;
+        return res;
     }
     
+    res = 0;
     return res;
 }
 
@@ -172,7 +205,7 @@ int ClienteDaoImpl::del(list<long long> &ids) {
             return res;
         }
         
-        cout << "dao: "<< sqlite3_expanded_sql(stmt.get()) << endl;
+        cout << "dao del: "<< sqlite3_expanded_sql(stmt.get()) << endl;
         
         if (int rc = sqlite3_step(stmt.get()) != SQLITE_DONE) {
             cerr << "step error code: " << sqlite3_errstr(rc) << endl;

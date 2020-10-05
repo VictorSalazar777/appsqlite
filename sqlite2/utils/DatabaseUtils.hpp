@@ -12,6 +12,7 @@
 #include <string>
 #include <list>
 #include <sqlite3.h>
+#include "db_connection/SqliteConnection2.hpp"
 
 using namespace std;
 
@@ -22,12 +23,12 @@ namespace DatabaseUtils {
     
     list<string> getColumnNamesFromDb(sqlite3 *db, const string tableName);
     
-    struct DbDeleter {
-        void operator()(sqlite3* db) {
-            sqlite3_close(db);
-        }
-    };
-    using uniqueDbPtr = unique_ptr<sqlite3, DbDeleter>;
+//    struct DbDeleter {
+//        void operator()(sqlite3* db) {
+//            sqlite3_close(db);
+//        }
+//    };
+    using uniqueDbPtr = unique_ptr<sqlite3, SqliteConnection2::DbDeleter>;
     uniqueDbPtr getDb();
     
     struct StmtDeleter {

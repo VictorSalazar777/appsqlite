@@ -19,6 +19,7 @@ values("manuel", "salazar", "40562639");
 insert into `cliente`(`nombres`, `apellidos`, `dni`) 
 values("felipe", "salazar", "77777777");
 select * from `cliente`;
+delete from `cliente` where `id` = 7;
 delete from `datos` where `id` = 14;
 select * from `cliente` where `id` = 2;
 create table `cliente` (
@@ -27,7 +28,15 @@ create table `cliente` (
 `apellidos` text not null,
 `dni` text unique not null
 );
+create table `cliente2` (
+`id` integer primary key autoincrement,
+`nombres` text not null,
+`apellidos` text not null,
+`dni` text  not null
+);
 
-insert into `cliente`(`nombres`, `apellidos`, `dni`) 
+insert into `cliente2`(`nombres`, `apellidos`, `dni`) 
 values("manuel", "salazar", "40562639");
 SELECT * FROM cliente;
+
+select count(*) from `cliente2`;
